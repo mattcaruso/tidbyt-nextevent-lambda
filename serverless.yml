@@ -1,0 +1,33 @@
+service: tidbyticalservice
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.9
+  apiGateway:
+    apiKeys:
+      - ${self:custom.stage}-pixlet
+
+functions:
+  next-event:
+    handler: handler.handler
+    events:
+      - http:
+          path: /
+          method: POST
+          private: true
+
+custom:
+  # Because stage is not defined in the provider section, it will default to dev unless specified in the CLI
+  stage: ${opt:stage, "dev"}
+  pythonRequirements:
+    dockerizePip: true
+  # https://www.serverless.com/plugins/serverless-prune-plugin
+  prune:
+    automatic: true
+    number: 3
+
+
+plugins:
+  - serverless-python-requirements
+  - serverless-prune-plugin
